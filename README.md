@@ -23,7 +23,51 @@ smallpond uses a DAG-based execution model with lazy evaluation:
 2. Execution is triggered only when an action is called (write, compute, etc.)
 3. Ray distributes tasks across workers, with each worker running its own DuckDB instance
 4. Backend supported is 3FS, while local filesystem can also be used for smaller workloard or development
+```mermaid
+flowchart TD
 
+%% Main components and data flow
+
+User([User]) -->|"Creates DataFrame operations"| Code[User Code]
+Code -->|"Builds"| DAG[Logical Plan DAG]
+User -->|"Triggers action (write_parquet, compute)"| DAG
+
+%% Execution flow
+
+DAG -->|"Optimizes & partitions"| Execution[Ray Execution Engine]
+
+%% Ray distribution
+
+subgraph "Distributed Processing"
+    Execution -->|"Distributes tasks"| Worker1[Ray Worker 1] & Worker2[Ray Worker 2] & WorkerN[Ray Worker N]
+    Worker1 -->|"Processes data"| DuckDB1[DuckDB Instance 1]
+    Worker2 -->|"Processes data"| DuckDB2[DuckDB Instance 2]
+    WorkerN -->|"Processes data"| DuckDBN[DuckDB Instance N]
+end
+
+%% Storage layer
+
+DuckDB1 <-->|"Read / Write"| Storage[(Storage Layer 3FS/AWS S3)]
+DuckDB2 <-->|"Read / Write"| Storage
+DuckDBN <-->|"Read / Write"| Storage
+
+%% Results flow
+
+DuckDB1 -->|"Collect results"| Results[Results]
+DuckDB2 -->|"Collect results"| Results
+DuckDBN -->|"Collect results"| Results
+Results -->|"Return to user"| User
+
+%% Styling
+
+classDef userFlow fill:#f9f,stroke:#333,stroke-width:2px;
+classDef execution fill:#bfb,stroke:#333,stroke-width:1px;
+classDef storage fill:#bbf,stroke:#333,stroke-width:1px;
+
+class User,Code,DAG,Results userFlow;
+class Execution,Worker1,Worker2,WorkerN,DuckDB1,DuckDB2,DuckDBN execution;
+class Storage storage;
+```
 
 
 ## Installation
