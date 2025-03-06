@@ -53,8 +53,9 @@ print(df.to_pandas())
 ## Documentation
 
 For detailed guides and API reference:
-- [Getting Started](docs/source/getstarted.rst)
-- [API Reference](docs/source/api.rst)
+- [Getting Started](https://deepseek-ai.github.io/smallpond/getstarted.html)
+- [API Reference](https://deepseek-ai.github.io/smallpond/api.html)
+- [Architecture](https://deepseek-ai.github.io/smallpond/architecture.html)
 
 ## Performance
 
